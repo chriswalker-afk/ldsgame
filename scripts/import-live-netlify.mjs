@@ -38,11 +38,38 @@ if(cssUrls.length)throw Error('Unexpected external CSS assets require manual aud
 const scripts=downloaded.get('web/src/main.js')+'\n'+downloaded.get('web/src/data.js');
 const dynamicFetch=[...scripts.matchAll(/\b(?:fetch|import)\s*\(\s*["'\x60]([^"'\x60]+)["'\x60]/g)].map(x=>x[1]);
 if(dynamicFetch.length)throw Error('Unexpected script-imported assets require audit: '+JSON.stringify(dynamicFetch));
+// Station pictures are loaded dynamically from data.js, not listed in HTML.
+const imageNames=[...downloaded.get('web/src/data.js').matchAll(/"stationImage"\s*:\s*"([^"]+)"/g)]
+  .map(match=>match[1]);
+if(imageNames.length!==8||new Set(imageNames).size!==8)
+  throw Error('Expected eight unique LDS station photographs; found '+JSON.stringify(imageNames));
+const images=new Map();
+for(const filename of imageNames){
+  if(!/^[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$/i.test(filename))
+    throw Error('Unexpected or unsafe image filename: '+filename);
+  const path='LDS_Board_game/images/'+filename;
+  const res=await fetch(new URL(path,base),{
+    signal:AbortSignal.timeout(30000),
+    headers:{'User-Agent':'LDS-Game-GitHub-Migration/1.0'}
+  });
+  if(res.status!==200)throw Error('Required station photo '+filename+' returned HTTP '+res.status);
+  const buffer=Buffer.from(await res.arrayBuffer());
+  const mime=res.headers.get('content-type')||'';
+  if(buffer.length<300||!mime.startsWith('image/')
+      ||!(buffer[0]===0xff&&buffer[1]===0xd8&&buffer[2]===0xff))
+    throw Error('Invalid JPEG station photo: '+JSON.stringify({path,mime,bytes:buffer.length}));
+  images.set(path,buffer);
+}
 for(const [path,contents] of downloaded){
   mkdirSync(path.split('/').slice(0,-1).join('/')||'.',{recursive:true});
   writeFileSync(path,contents,'utf8');
   console.log('IMPORTED_FILE='+JSON.stringify({path,bytes:Buffer.byteLength(contents),sha256:sha(Buffer.from(contents))}));
 }
-console.log('IMPORT_RESULT='+JSON.stringify({files:downloaded.size,source:base,
+for(const [path,buffer] of images){
+  mkdirSync(path.split('/').slice(0,-1).join('/'),{recursive:true});
+  writeFileSync(path,buffer);
+  console.log('IMPORTED_IMAGE='+JSON.stringify({path,bytes:buffer.length,sha256:sha(buffer)}));
+}
+console.log('IMPORT_RESULT='+JSON.stringify({files:downloaded.size+images.size,photos:images.size,source:base,
   removedNetlifyComment:true,cssAssetReferences:cssUrls.length,dynamicScriptFetches:dynamicFetch.length,
   title:'Race Around the Large Data Set',status:'PASS'}));
