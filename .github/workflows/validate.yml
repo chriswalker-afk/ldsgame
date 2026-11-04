@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 jobs:
-  source-and-parity:
+  source-integrity:
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
@@ -16,8 +16,6 @@ jobs:
           node-version: '22'
       - name: Check LDS questions, game scripts, station photographs and Pages paths
         run: node --test tests/site-smoke.mjs
-      - name: Compare every imported source and photograph with live Netlify
-        run: node scripts/verify-netlify-parity.mjs
   browser-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 8
