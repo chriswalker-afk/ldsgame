@@ -1,0 +1,35 @@
+name: Import live LDS Game into GitHub
+on:
+  push:
+    branches:
+      - migrate-lds-game-to-pages
+    paths:
+      - .github/workflows/import-live.yml
+permissions:
+  contents: write
+jobs:
+  import-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: migrate-lds-game-to-pages
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Import audited Netlify files
+        run: node scripts/import-live-netlify.mjs
+      - name: Verify imported JavaScript syntax
+        run: |
+          node --check web/src/main.js
+          node --check web/src/data.js
+      - name: Commit imported website to migration PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html web/src/
+          git diff --cached --quiet && { echo "LDS Game already imported"; exit 0; }
+          git commit -m "Import live Race Around the Large Data Set app from Netlify"
+          git push origin HEAD:migrate-lds-game-to-pages
