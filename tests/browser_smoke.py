@@ -1,9 +1,10 @@
 """Smoke-test the imported LDS game in real Chromium without student data."""
 import json
+import os
 import shutil
 from playwright.sync_api import sync_playwright,expect
 
-ROOT='http://127.0.0.1:8765/'
+ROOT=os.environ.get('LDS_GAME_URL','http://127.0.0.1:8765/')
 with sync_playwright() as pw:
     chrome=shutil.which('google-chrome') or shutil.which('chromium') or shutil.which('chromium-browser')
     assert chrome, 'A system Chrome/Chromium binary is required'
