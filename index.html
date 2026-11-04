@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Race Around the Large Data Set</title>
+    <link rel="stylesheet" href="web/src/styles.css">
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Interactive classroom board game</p>
+        <h1>Race Around the Large Data Set</h1>
+        <p>Roll the die, move team counters, answer LDS question cards, and race to 5 points.</p>
+      </div>
+      <div class="hero-actions">
+        <button class="secondary" type="button" data-open-review>Review Cards</button>
+        <button id="helpButton" class="secondary" type="button">Rules</button>
+      </div>
+    </header>
+
+    <main class="game-layout">
+      <section class="board-area" aria-label="Interactive Large Data Set game board">
+        <div class="board-card">
+          <div class="board-scroll">
+            <div class="board-stage">
+              <div id="board" class="board" aria-label="Interactive Large Data Set game board"></div>
+              <div class="board-dice-controls" aria-label="Dice controls">
+                <div id="diceDisplay" class="dice" aria-live="polite">–</div>
+                <button id="rollButton" type="button">Roll dice</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="game-control-panel" aria-label="Game dashboard">
+        <div class="panel setup dashboard-scores" aria-labelledby="setupTitle">
+          <div class="dashboard-panel-heading">
+            <div>
+              <p class="eyebrow">Scoreboard</p>
+              <h2 id="setupTitle">Teams</h2>
+            </div>
+            <form id="teamForm" class="team-form">
+              <label for="teamCount">Number of teams</label>
+              <select id="teamCount" name="teamCount">
+                <option value="2">2 teams</option>
+                <option value="3">3 teams</option>
+                <option value="4">4 teams</option>
+              </select>
+              <div class="setup-actions">
+                <button id="startButton" type="submit">Start Game</button>
+                <button id="resetButton" class="secondary" type="button">Reset Game</button>
+              </div>
+            </form>
+          </div>
+          <div id="scoreboard" class="scoreboard" aria-live="polite"></div>
+        </div>
+
+        <aside class="panel action-panel dashboard-controls" aria-labelledby="turnTitle">
+          <div class="turn-summary">
+            <div>
+              <p class="eyebrow">Current turn</p>
+              <h2 id="turnTitle">Ready</h2>
+            </div>
+          </div>
+          <div id="turnMetrics" class="turn-metrics" aria-live="polite"></div>
+          <div class="dashboard-actions">
+            <div class="control-strip" aria-label="Game preferences">
+              <label><input id="muteToggle" type="checkbox" checked> Muted</label>
+              <label><input id="motionToggle" type="checkbox"> Reduced motion</label>
+            </div>
+            <div class="button-row dashboard-button-row single-action">
+              <button class="secondary" type="button" data-open-review>Review Cards</button>
+            </div>
+          </div>
+          <div id="statusMessage" class="status" aria-live="polite"></div>
+
+        </aside>
+      </section>
+    </main>
+
+    <section id="cardPanel" class="card-panel gameplay-card-overlay" aria-live="polite" hidden></section>
+
+    <section id="reviewMode" class="review-mode" aria-live="polite" hidden></section>
+
+    <div id="celebrationOverlay" class="celebration-overlay" hidden></div>
+
+    <dialog id="rulesDialog" class="rules-dialog">
+      <form method="dialog">
+        <button class="close" aria-label="Close rules">×</button>
+      </form>
+      <h2>How to play</h2>
+      <ul id="rulesList"></ul>
+      <h3>Bonus spaces</h3>
+      <ul id="bonusList"></ul>
+      <p class="precision"><strong>Precision rule:</strong> full points need precise LDS language, such as “the LDS only covers May–October”.</p>
+    </dialog>
+
+    <script src="web/src/data.js"></script>
+    <script src="web/src/main.js"></script>
+  </body>
+</html>
