@@ -1,0 +1,40 @@
+name: Validate LDS Game migration
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  source-and-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check LDS questions, game scripts, station photographs and Pages paths
+        run: node --test tests/site-smoke.mjs
+      - name: Compare every imported source and photograph with live Netlify
+        run: node scripts/verify-netlify-parity.mjs
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright Python bindings
+        run: python -m pip install --disable-pip-version-check playwright
+      - name: Exercise team, dice, board, station photos and review mode in Chrome
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/lds-game-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:8765/ > /dev/null; then break; fi
+            sleep 0.5
+          done
+          python tests/browser_smoke.py
