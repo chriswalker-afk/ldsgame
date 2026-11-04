@@ -14,10 +14,11 @@ On 4 November 2026, this repository was populated directly from the **current pu
 - `web/src/styles.css` — its styles
 - `web/src/data.js` — the question bank and board content
 - `web/src/main.js` — the game engine and interface
+- `LDS_Board_game/images/` — all eight original station photographs, dynamically referenced by the board
 
 The import preserved all application files exactly as served. The one change was removing Netlify's hosting-only HTML comment from `index.html`. No user-facing game rules, maths questions, layout, or JavaScript were rewritten.
 
-The site needs no Netlify Functions, APIs, authentication, external CSS assets or other hosting services. The imported data and scripts were SHA-256 compared with the live Netlify deployment. The CI parity check repeats this comparison against the old Netlify site after removing its hosting-only comment.
+The site needs no Netlify Functions, APIs, authentication, external CSS assets or other hosting services. All eight station photographs were also downloaded and compared byte-for-byte with their Netlify originals. The imported data and scripts were SHA-256 compared with the live Netlify deployment. The CI parity check repeats this comparison against the old Netlify site after removing its hosting-only comment.
 
 ## GitHub Pages activation
 
@@ -46,4 +47,4 @@ Run the static JavaScript and board-data checks using:
 node --test tests/site-smoke.mjs
 ```
 
-The live parity and browser smoke checks run automatically in GitHub Actions.
+The automated checks test the original maths questions, browser gameplay, board images and static assets. A **manual** GitHub Actions workflow, `Compare LDS Game against original Netlify site`, can be run to repeat the exact-source parity comparison while the old Netlify site remains available; regular CI does not depend on that external host.
