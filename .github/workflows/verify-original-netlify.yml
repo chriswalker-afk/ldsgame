@@ -1,0 +1,16 @@
+name: Compare LDS Game against original Netlify site
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-source-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare live HTML, scripts, styles, and all station photographs
+        run: node scripts/verify-netlify-parity.mjs
